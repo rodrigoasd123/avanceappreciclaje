@@ -24,20 +24,30 @@ public class UsuarioService implements IUsuarioServices {
     public UsuarioDTO crear(UsuarioDTO dto) {
         Usuario entity = mapper.map(dto, Usuario.class);
         entity.setIdUsuario(null);
-        return mapper.map(repo.save(entity), UsuarioDTO.class);
+        Usuario savedEntity = repo.save(entity);
+        return mapper.map(savedEntity, UsuarioDTO.class);
     }
 
     @Override
     public UsuarioDTO actualizar(Long id, UsuarioDTO dto) {
         Usuario entity = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        // Solo campos editables:
+
+        // Actualizar solo los campos necesarios
         entity.setNombre(dto.getNombre());
         entity.setApellido(dto.getApellido());
         entity.setCorreo(dto.getCorreo());
+
+        // Solo actualizar contraseña si se proporciona
+        if (dto.getContrasena() != null && !dto.getContrasena().trim().isEmpty()) {
+            entity.setContrasena(dto.getContrasena());
+        }
+
         entity.setPesoRecolectado(dto.getPesoRecolectado());
         entity.setPuntos(dto.getPuntos());
-        return mapper.map(repo.save(entity), UsuarioDTO.class);
+
+        Usuario updatedEntity = repo.save(entity);
+        return mapper.map(updatedEntity, UsuarioDTO.class);
     }
 
     @Override
@@ -56,6 +66,9 @@ public class UsuarioService implements IUsuarioServices {
 
     @Override
     public void eliminar(Long id) {
+        if (!repo.existsById(id)) {
+            throw new RuntimeException("Usuario no encontrado");
+        }
         repo.deleteById(id);
     }
 }

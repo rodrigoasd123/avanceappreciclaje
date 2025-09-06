@@ -1,4 +1,4 @@
-package com.upc.proveedorespro.config;
+package com.upc.avanceappreciclaje.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
